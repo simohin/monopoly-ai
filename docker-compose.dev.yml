@@ -1,0 +1,12 @@
+services:
+  mongodb:
+    image: 'mongo:latest'
+    container_name: monopoly-ai-mongodb
+    environment:
+      - 'MONGO_INITDB_DATABASE=monopoly-ai'
+      - 'MONGO_INITDB_ROOT_PASSWORD=password'
+      - 'MONGO_INITDB_ROOT_USERNAME=monopoly-ai'
+    volumes:
+      - ./data:/data/db
+    ports:
+      - '27017'
