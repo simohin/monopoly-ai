@@ -10,19 +10,19 @@ import java.util.*
 
 @Service
 class PlayerService(
-    private val playerRepository: PlayerRepository
+    private val repository: PlayerRepository
 ) {
 
-    fun create(name: String) = playerRepository.existsByName(name)
+    fun create(name: String) = repository.existsByName(name)
         .filter { !it }
-        .flatMap { playerRepository.save(Player(name)) }
+        .flatMap { repository.save(Player(name)) }
         .switchIfEmpty { Mono.error(DuplicateKeyException("User with name $name already exists")) }
 
-    fun delete(id: UUID) = playerRepository.deleteById(id)
+    fun delete(id: UUID) = repository.deleteById(id)
 
-    fun get(id: UUID) = playerRepository.findById(id)
+    fun get(id: UUID) = repository.findById(id)
         .switchIfEmpty { Mono.error(NoSuchElementException("Player with id $id not found")) }
 
-    fun get() = playerRepository.findAll()
+    fun get() = repository.findAll()
 
 }

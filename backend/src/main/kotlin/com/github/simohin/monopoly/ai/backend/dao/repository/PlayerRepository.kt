@@ -8,6 +8,5 @@ import java.util.*
 
 @Repository
 interface PlayerRepository : ReactiveMongoRepository<Player, UUID> {
-    fun findByName(name: String): Mono<Player>
     fun existsByName(name: String): Mono<Boolean>
 }
