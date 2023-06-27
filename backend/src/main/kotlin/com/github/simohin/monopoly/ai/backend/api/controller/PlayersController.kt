@@ -21,7 +21,7 @@ class PlayersController(
         .map {
             ServerResponse.status(HttpStatus.CREATED)
                 .header(HttpHeaders.LOCATION, it.id.toString())
-                .bodyValue(it)
+                .bodyValue(Player(it))
         }
 
     @GetMapping("{id}")
