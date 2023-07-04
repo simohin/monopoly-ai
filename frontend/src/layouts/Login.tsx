@@ -1,22 +1,32 @@
-import {Alert, Button, Form, Input} from "antd";
 import {MainCenterContainer} from "../component/common/MainCenterContainer";
 import {getToken} from "../api/auth";
 import {Navigate, useSearchParams} from "react-router-dom";
 import {useSelector} from "react-redux";
 import {RootState} from "../store/models";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {AxiosError} from "axios";
+import {Alert, Box, Button, TextField, Typography} from "@mui/material";
 
 export const Login = () => {
 
+    const [errors, setErrors] = useState<string[]>([])
 
-    const [errors, setErrors] = useState<String[]>([])
-    const onFinish = (values: any) => {
+    const [username, setUsername] = useState<string>()
+    const [password, setPassword] = useState<string>()
+
+    const [buttonDisabled, setButtonDisabled] = useState<boolean>(typeof username === 'undefined' && typeof password === 'undefined')
+
+    useEffect(() => {
+        setButtonDisabled((username || '').length <= 0 || (password || '').length <= 0)
+    }, [username, password])
+
+    const handleSubmit = () => {
         getToken({
-            login: values.username,
-            password: values.password
+            login: username || '',
+            password: password || ''
         }).catch((e: AxiosError) => {
-            switch (e.response?.status) {
+            errors.pop()
+            switch (e.response?.status || 0) {
                 case 401: {
                     setErrors(errors.concat(["Доступ запрещён"]))
                     break;
@@ -31,54 +41,66 @@ export const Login = () => {
         })
     };
 
-    const onFinishFailed = (errorInfo: any) => {
-        console.log('Failed:', errorInfo);
-    };
-
     const [searchParams] = useSearchParams()
     const redirectTo = searchParams.get('redirect-to') || '/'
     const authState = useSelector((state: RootState) => state.auth)
 
     return (typeof authState.token === "undefined") ? (
         <MainCenterContainer>
-            {errors.map(e => (
-                <Alert
-                    style={{marginBottom: '8px'}}
-                    message={e}
-                    type="error"
-                    closable
-                />))}
-            <Form
-                name="basic"
-                style={{marginTop: '16px'}}
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                autoComplete="off"
+            <Box
+                component={'form'}
+                autoComplete={'off'}
+                sx={{
+                    display: 'flex',
+                    flexGrow: 1,
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '90vh',
+                    textAlign: 'center'
+                }}
             >
-                <Form.Item
-                    name="username"
-                    rules={[{required: true, message: 'Имя пользователя обязательно'}]}
-                >
-                    <Input
-                        placeholder="Имя пользователя"
+                <Typography margin={'16px'} variant={'h2'}>Войти</Typography>
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                    mb: '16px',
+                }}>
+                    <TextField
+                        onChange={e => setUsername(e.target.value)}
+                        required
+                        id="username"
+                        label="Имя пользователя"
                     />
-                </Form.Item>
-
-                <Form.Item
-                    name="password"
-                    rules={[{required: true, message: 'Пароль обязателен'}]}
-                >
-                    <Input.Password
-                        placeholder="Пароль"
+                    <TextField
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                        inputProps={{type: 'password'}}
+                        id="password"
+                        label="Пароль"
                     />
-                </Form.Item>
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={buttonDisabled}
+                        variant={'contained'}
+                    >
+                        Войти</Button>
+                </Box>
+            </Box>
 
-                <Form.Item>
-                    <Button style={{width: '100%'}} type="primary" htmlType="submit">
-                        Войти
-                    </Button>
-                </Form.Item>
-            </Form>
+            <Box
+                sx={{
+                    gap: '8px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    textAlign: 'center'
+                }}
+            >
+                {errors.map(e => <Alert key={Math.floor(Math.random() * 9999)} severity="error">{e}</Alert>)}
+            </Box>
         </MainCenterContainer>
     ) : (<Navigate to={redirectTo}/>)
 }

@@ -1,26 +1,30 @@
-import {Button, Layout} from 'antd';
 import {RootState, store} from "../store/models";
 import {useSelector} from "react-redux";
+import {Box, Button, Container, Typography} from "@mui/material";
 
-const {Header} = Layout;
 export const Navigation = () => {
     const handleClick = () => {
         store.dispatch.auth.logout()
     }
     const authState = useSelector((state: RootState) => state.auth)
+    const baseButtonStyle = {
+        margin: '8px',
+    }
 
     const buttonStyle = (typeof authState?.token) === 'undefined' ? {
         display: 'none'
     } : {}
 
     return (
-        <Header style={{
+        <Box style={{
             alignItems: 'center',
             display: 'flex',
             width: '100vw',
-            justifyContent: 'flex-end'
+            justifyContent: 'space-between',
+            textAlign: 'center'
         }}>
-            <Button style={buttonStyle} onClick={handleClick}>Выйти</Button>
-        </Header>
+            <Typography style={{margin: '8px'}} variant={'h4'}>Monopoly.AI</Typography>
+            <Button variant={'contained'} style={{...baseButtonStyle, ...buttonStyle}} onClick={handleClick}>Выйти</Button>
+        </Box>
     )
 }
