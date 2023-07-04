@@ -1,26 +1,32 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import {Login} from "./layouts/Login";
+import {Provider} from "react-redux";
+import {Main} from "./layouts/Main";
+import {store} from "./store/models";
+import {PrivateComponent} from "./component/common/PrivateComponent";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export const App = () => {
+    const router = createBrowserRouter([
+        {
+            path: "",
+            element: (
+                <PrivateComponent>
+                    <Main/>
+                </PrivateComponent>
+            )
+        },
+        {
+            path: "login",
+            element: (
+                <Login/>
+            )
+        }
+    ])
+    return (
+        <Provider store={store}>
+            <RouterProvider router={router}/>
+        </Provider>
+    )
 }
-
-export default App;
