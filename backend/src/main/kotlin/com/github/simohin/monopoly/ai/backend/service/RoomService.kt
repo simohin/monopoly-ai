@@ -3,7 +3,7 @@ package com.github.simohin.monopoly.ai.backend.service
 import com.github.simohin.monopoly.ai.backend.dao.document.Room
 import com.github.simohin.monopoly.ai.backend.dao.repository.RoomRepository
 import com.github.simohin.monopoly.ai.backend.sse.dto.PlayerJoinsRoomEvent
-import org.slf4j.LoggerFactory
+import com.github.simohin.monopoly.ai.backend.util.LogProvider
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.publisher.SignalType
@@ -18,7 +18,7 @@ class RoomService(
     private val playerService: PlayerService
 ) {
 
-    private val log = LoggerFactory.getLogger(RoomService::class.simpleName)
+    companion object : LogProvider()
 
     val roomJoinSink = Sinks.many().multicast().onBackpressureBuffer<PlayerJoinsRoomEvent>()
 

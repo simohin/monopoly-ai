@@ -2,3 +2,5 @@ spring:
   docker:
     compose:
       file: docker-compose.dev.yml
+jwt:
+  secret: 2d3265c9b5db42acaeb562d21a023dd62d3265c9b5db42acaeb562d21a023dd6
