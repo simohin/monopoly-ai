@@ -40,7 +40,7 @@ class AuthController(
         val username = it.first
         val password = it.second
         authManager.authenticate(UsernamePasswordAuthenticationToken(username, password))
-            .map { auth -> jwtProvider.create(auth.name, password, auth.authorities) }
+            .map { auth -> jwtProvider.create(auth) }
     }
         .map {
             val headers = HttpHeaders()

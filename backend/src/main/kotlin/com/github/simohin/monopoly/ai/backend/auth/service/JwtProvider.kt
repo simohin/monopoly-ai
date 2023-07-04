@@ -2,7 +2,6 @@ package com.github.simohin.monopoly.ai.backend.auth.service
 
 import com.github.simohin.monopoly.ai.backend.auth.AUTHORITIES_DELIMITER
 import com.github.simohin.monopoly.ai.backend.auth.AUTHORITIES_KEY
-import com.github.simohin.monopoly.ai.backend.auth.PASSWORD_KEY
 import com.github.simohin.monopoly.ai.backend.util.LogProvider
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
@@ -10,9 +9,7 @@ import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService
 import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
@@ -28,7 +25,6 @@ class JwtProvider(
     private val secret: String,
     @Value("\${jwt.ttl:PT1H}")
     private val ttl: Duration,
-    private val userDetailsService: ReactiveUserDetailsService
 ) {
     companion object : LogProvider()
 
@@ -37,10 +33,9 @@ class JwtProvider(
         .setSigningKey(key)
         .build()
 
-    fun create(username: String, rawPassword: String, authorities: Collection<GrantedAuthority>): String {
-        val claims = Jwts.claims().setSubject(username)
-        claims[AUTHORITIES_KEY] = authorities.joinToString(AUTHORITIES_DELIMITER) { it.authority }
-        claims[PASSWORD_KEY] = rawPassword
+    fun create(auth: Authentication): String {
+        val claims = Jwts.claims().setSubject(auth.name)
+        claims[AUTHORITIES_KEY] = auth.authorities.joinToString(AUTHORITIES_DELIMITER) { it.authority }
         val now = OffsetDateTime.now()
         val validity = now.plus(ttl)
         val key = key
