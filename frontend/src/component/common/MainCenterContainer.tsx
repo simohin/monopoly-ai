@@ -8,16 +8,17 @@ type Props = {
 const contentStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
-    margin: '8px'
+    margin: '32px',
+    flexGrow: '1'
 };
 export const MainCenterContainer: React.FC<Props> = (props) => (
     <Box style={{
         display: 'flex',
         flexDirection: 'column',
-        width: '100vw',
-        height: '100vh'
+        minWidth: '100vw',
+        minHeight: '100vh'
     }}>
         <Navigation/>
-        <Box style={contentStyle}>{props.children}</Box>
+        <Box sx={contentStyle}>{props.children}</Box>
     </Box>
 )

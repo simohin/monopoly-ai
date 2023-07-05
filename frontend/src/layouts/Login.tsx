@@ -1,13 +1,14 @@
-import {MainCenterContainer} from "../component/common/MainCenterContainer";
 import {getToken} from "../api/auth";
-import {Navigate, useSearchParams} from "react-router-dom";
-import {useSelector} from "react-redux";
-import {RootState} from "../store/models";
+import {useSearchParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {AxiosError} from "axios";
 import {Alert, Box, Button, TextField, Typography} from "@mui/material";
 
-export const Login = () => {
+type Props = {
+    onSuccess: () => void
+}
+
+export const Login: React.FC<Props> = (props) => {
 
     const [errors, setErrors] = useState<string[]>([])
 
@@ -24,29 +25,31 @@ export const Login = () => {
         getToken({
             login: username || '',
             password: password || ''
-        }).catch((e: AxiosError) => {
-            errors.pop()
-            switch (e.response?.status || 0) {
-                case 401: {
-                    setErrors(errors.concat(["Доступ запрещён"]))
-                    break;
-                }
-                case 404: {
-                    setErrors(errors.concat(["Пользователь не найден"]))
-                    break;
-                }
-                default:
-                    setErrors(errors.concat(["Что-то пошло не так"]))
-            }
         })
+            .then(props.onSuccess)
+            .catch((e: AxiosError) => {
+                errors.pop()
+                switch (e.response?.status || 0) {
+                    case 401: {
+                        setErrors(errors.concat(["Доступ запрещён"]))
+                        break;
+                    }
+                    case 404: {
+                        setErrors(errors.concat(["Пользователь не найден"]))
+                        break;
+                    }
+                    default:
+                        setErrors(errors.concat(["Что-то пошло не так"]))
+                }
+            })
     };
 
     const [searchParams] = useSearchParams()
-    const redirectTo = searchParams.get('redirect-to') || '/'
-    const authState = useSelector((state: RootState) => state.auth)
+    // const redirectTo = searchParams.get('redirect-to') || '/'
+    // const authState = useSelector((state: RootState) => state.auth)
 
-    return (typeof authState.token === "undefined") ? (
-        <MainCenterContainer>
+    return (
+        <>
             <Box
                 component={'form'}
                 autoComplete={'off'}
@@ -56,7 +59,6 @@ export const Login = () => {
                     flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    minHeight: '90vh',
                     textAlign: 'center'
                 }}
             >
@@ -88,7 +90,6 @@ export const Login = () => {
                         Войти</Button>
                 </Box>
             </Box>
-
             <Box
                 sx={{
                     gap: '8px',
@@ -99,8 +100,8 @@ export const Login = () => {
                     textAlign: 'center'
                 }}
             >
-                {errors.map(e => <Alert key={Math.floor(Math.random() * 9999)} severity="error">{e}</Alert>)}
+                {errors.map(e => <Alert key={1} onClick={() => setErrors([])} severity="error">{e}</Alert>)}
             </Box>
-        </MainCenterContainer>
-    ) : (<Navigate to={redirectTo}/>)
+        </>
+    )
 }
