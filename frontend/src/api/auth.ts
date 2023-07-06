@@ -1,9 +1,13 @@
 import {baseClient} from "./client";
-import {LoginRequest, TokenResponse} from "./types";
+import {Credentials, TokenResponse} from "./types";
 import {store} from "../store/models";
 
-export const getToken = async (credentials: LoginRequest) => {
+export const getToken = async (credentials: Credentials) => {
     return baseClient.post('/auth/tokens', credentials)
         .then(r => r.data as TokenResponse)
         .then(r => store.dispatch.auth.setToken(r.token))
+}
+export const register = async (credentials: Credentials) => {
+    return baseClient.post('/auth/users', credentials)
+        .then(() => getToken(credentials))
 }

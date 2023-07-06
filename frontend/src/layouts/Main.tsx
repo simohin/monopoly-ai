@@ -5,7 +5,8 @@ import {Room} from "../view/Room";
 import {Settings} from "../view/Settings";
 import {useSelector} from "react-redux";
 import {RootState} from "../store/models";
-import {Login} from "./Login";
+import {Login} from "../view/Login";
+import {Register} from "../view/Register";
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -52,6 +53,9 @@ export const Main = () => {
             <TabPanel value={current} index={2}>
                 <Login onSuccess={() => setCurrent(0)}/>
             </TabPanel>
+            <TabPanel value={current} index={3}>
+                <Register onSuccess={() => setCurrent(0)}/>
+            </TabPanel>
             <BottomNavigation
                 showLabels
                 value={current}
@@ -62,6 +66,7 @@ export const Main = () => {
                 <BottomNavigationAction sx={{display: isLoggedIn ? 'block' : 'none'}} label="Комнаты"/>
                 <BottomNavigationAction sx={{display: isLoggedIn ? 'block' : 'none'}} label="Настройки"/>
                 <BottomNavigationAction sx={{display: isLoggedIn ? 'none' : 'block'}} label="Вход"/>
+                <BottomNavigationAction sx={{display: isLoggedIn ? 'none' : 'block'}} label="Регистрация"/>
             </BottomNavigation>
         </MainCenterContainer>
     )

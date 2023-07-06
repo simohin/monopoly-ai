@@ -33,8 +33,9 @@ class AuthController(
     @PostMapping("/users")
     fun register(@RequestBody authRequest: Mono<AuthRequest>) = authRequest.flatMap {
         userDetailsService.create(it.login, it.password)
-    }.map { it.username to it.password }
-        .authorize()
+    }.map {
+        ResponseEntity(null, HttpStatus.CREATED)
+    }
 
     private fun Mono<Pair<String, String>>.authorize() = flatMap {
         val username = it.first

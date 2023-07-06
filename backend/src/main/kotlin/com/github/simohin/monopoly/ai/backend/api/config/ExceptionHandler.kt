@@ -39,16 +39,16 @@ class ExceptionHandler(
         val status = when (error) {
             is NoSuchElementException -> HttpStatus.NOT_FOUND
             is BadCredentialsException -> HttpStatus.UNAUTHORIZED
-            is DuplicateKeyException -> HttpStatus.BAD_REQUEST
+            is DuplicateKeyException, is IllegalArgumentException -> HttpStatus.BAD_REQUEST
             else -> HttpStatus.INTERNAL_SERVER_ERROR
         }
 
         val attrs = getErrorAttributes(req, ErrorAttributeOptions.defaults())
-        attrs["code"] = status.value()
+        attrs["status"] = status.value()
         attrs["message"] = error.localizedMessage
 
         return ServerResponse.status(status)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(BodyInserters.fromValue(attrs));
+            .body(BodyInserters.fromValue(attrs))
     }
 }

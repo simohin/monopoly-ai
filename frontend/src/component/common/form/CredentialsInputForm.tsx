@@ -1,15 +1,20 @@
-import {getToken} from "../api/auth";
-import {useSearchParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
-import {AxiosError} from "axios";
+import {AxiosError} from "axios/index";
 import {Alert, Box, Button, TextField, Typography} from "@mui/material";
+import {Credentials} from "../../../api/types";
 
 type Props = {
+    titleText: string,
+    buttonText: string,
+    onSubmit: (credentials: Credentials) => Promise<void>
     onSuccess: () => void
 }
 
-export const Login: React.FC<Props> = (props) => {
+type BadRequestResponse = {
+    message: string
+}
 
+export const CredentialsInputForm: React.FC<Props> = (props) => {
     const [errors, setErrors] = useState<string[]>([])
 
     const [username, setUsername] = useState<string>()
@@ -22,7 +27,7 @@ export const Login: React.FC<Props> = (props) => {
     }, [username, password])
 
     const handleSubmit = () => {
-        getToken({
+        props.onSubmit({
             login: username || '',
             password: password || ''
         })
@@ -30,6 +35,10 @@ export const Login: React.FC<Props> = (props) => {
             .catch((e: AxiosError) => {
                 errors.pop()
                 switch (e.response?.status || 0) {
+                    case 400: {
+                        setErrors(errors.concat([(e.response?.data as BadRequestResponse).message || 'Некорректный ввод']))
+                        break;
+                    }
                     case 401: {
                         setErrors(errors.concat(["Доступ запрещён"]))
                         break;
@@ -43,10 +52,6 @@ export const Login: React.FC<Props> = (props) => {
                 }
             })
     };
-
-    const [searchParams] = useSearchParams()
-    // const redirectTo = searchParams.get('redirect-to') || '/'
-    // const authState = useSelector((state: RootState) => state.auth)
 
     return (
         <>
@@ -62,7 +67,7 @@ export const Login: React.FC<Props> = (props) => {
                     textAlign: 'center'
                 }}
             >
-                <Typography margin={'16px'} variant={'h2'}>Войти</Typography>
+                <Typography margin={'16px'} variant={'h2'}>{props.titleText}</Typography>
                 <Box sx={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -87,7 +92,8 @@ export const Login: React.FC<Props> = (props) => {
                         disabled={buttonDisabled}
                         variant={'contained'}
                     >
-                        Войти</Button>
+                        {props.buttonText}
+                    </Button>
                 </Box>
             </Box>
             <Box

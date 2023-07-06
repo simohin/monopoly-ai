@@ -6,8 +6,9 @@ import com.github.simohin.monopoly.ai.backend.dao.document.Room as RoomDocument
 
 data class Room(
     val id: UUID,
+    val owner: UUID,
     val status: RoomStatus,
     val players: Collection<UUID>
 ) {
-    constructor(document: RoomDocument) : this(document.id, document.status, document.players.toSet())
+    constructor(document: RoomDocument) : this(document.id, document.owner, document.status, document.players.toSet())
 }

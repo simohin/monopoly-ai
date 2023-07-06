@@ -1,5 +1,6 @@
 package com.github.simohin.monopoly.ai.backend.service
 
+import com.github.simohin.monopoly.ai.backend.auth.service.UserDetailsServiceImpl
 import com.github.simohin.monopoly.ai.backend.dao.document.Room
 import com.github.simohin.monopoly.ai.backend.dao.repository.RoomRepository
 import com.github.simohin.monopoly.ai.backend.sse.dto.PlayerJoinsRoomEvent
@@ -10,33 +11,44 @@ import reactor.core.publisher.SignalType
 import reactor.core.publisher.Sinks
 import reactor.core.publisher.Sinks.EmitResult
 import reactor.kotlin.core.publisher.switchIfEmpty
+import reactor.kotlin.core.publisher.toFlux
 import java.util.*
 
 @Service
 class RoomService(
     private val repository: RoomRepository,
-    private val playerService: PlayerService
+    private val userDetailsServiceImpl: UserDetailsServiceImpl
 ) {
 
     companion object : LogProvider()
 
     val roomJoinSink = Sinks.many().multicast().onBackpressureBuffer<PlayerJoinsRoomEvent>()
 
-    fun create() = repository.save(Room())
+    fun create() =
+        userDetailsServiceImpl.getUserDetails()
+            .toFlux()
+            .flatMap { repository.save(Room(it.id)) }
+
 
     fun delete(id: UUID) = repository.deleteById(id)
 
     fun get(id: UUID) = repository.findById(id)
         .switchIfEmpty { Mono.error(NoSuchElementException("Room with id $id not found")) }
 
-    fun get() = repository.findAll()
+    fun get() = userDetailsServiceImpl.getUserDetails()
+        .toFlux()
+        .flatMap { userDetails ->
+            repository.findAll()
+                .filter { it.players.contains(userDetails.id) }
+        }
 
-    fun join(roomId: UUID, playerId: UUID) = get(roomId)
-        .doOnNext {
-            roomJoinSink.emitNext(PlayerJoinsRoomEvent(playerId, roomId), handleEmitError)
-        }.flatMap { room ->
-            playerService.get(playerId)
-                .flatMap {
+    fun join(roomId: UUID) = userDetailsServiceImpl.getUserDetails()
+        .toFlux()
+        .flatMap {
+            get(roomId)
+                .doOnNext { room ->
+                    roomJoinSink.emitNext(PlayerJoinsRoomEvent(it.id, room.id), handleEmitError)
+                }.flatMap { room ->
                     room.players.add(it.id)
                     repository.save(room)
                 }

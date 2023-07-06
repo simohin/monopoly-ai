@@ -16,7 +16,7 @@ data class UserDetailsImpl(
     private val nonLocked: Boolean = true,
     private val credentialsNonExpired: Boolean = true,
     private val enabled: Boolean = true,
-    private val id: UUID = UUID.randomUUID(),
+    val id: UUID = UUID.randomUUID(),
 ) : UserDetails {
     override fun getAuthorities() = authorities
 

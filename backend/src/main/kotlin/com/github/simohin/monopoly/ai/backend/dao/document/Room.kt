@@ -7,8 +7,9 @@ import java.util.*
 
 @Document
 data class Room(
+    val owner: UUID,
     @Id
     val id: UUID = UUID.randomUUID(),
     val status: RoomStatus = RoomStatus.CREATED,
-    val players: MutableCollection<UUID> = mutableSetOf()
+    val players: MutableCollection<UUID> = mutableSetOf(owner)
 )
